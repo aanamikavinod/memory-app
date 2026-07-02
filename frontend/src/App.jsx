@@ -30,9 +30,16 @@ export default function App() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedEditProduct, setSelectedEditProduct] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const API_BASE = import.meta.env.VITE_API_URL || 'https://memory-app-0txb.onrender.com';
+  const apiUrl = (path) => {
+    const sanitizedPath = path.startsWith('/') ? path.slice(1) : path;
+    const base = API_BASE.replace(/\/$/, '');
+    return `${base}/api/${sanitizedPath}`;
+  };
+
   const handleAddProduct = async (productData) => {
    try {
-    const response = await fetch('/api/products', {
+    const response = await fetch(apiUrl('/products'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -59,7 +66,7 @@ export default function App() {
 
  const handleEditProduct = async (id, productData) => {
   try {
-    const response = await fetch(`/api/products/${id}`, {
+    const response = await fetch(apiUrl(`/products/${id}`), {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -89,12 +96,9 @@ export default function App() {
 }
  const handleDeleteProduct = async (id) => {
   try {
-    const response = await fetch(
-      `/api/products/${id}`,
-      {
-        method: 'DELETE',
-      }
-    );
+    const response = await fetch(apiUrl(`/products/${id}`), {
+      method: 'DELETE',
+    });
 
     if (!response.ok) {
       throw new Error('Failed to delete');
@@ -113,19 +117,8 @@ export default function App() {
   }
 };
 
-  // Fetch products
-  const fetchProducts = async () => {
-    try {
-      const res = await fetch('https://memory-app-0txb.onrender.com/api/products');
-      const data = await res.json();
-      setProducts(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   useEffect(() => {
-    fetch('/api/products')
+    fetch(apiUrl('/products'))
       .then((res) => {
         if (!res.ok) throw new Error('Failed to load products');
         return res.json();
